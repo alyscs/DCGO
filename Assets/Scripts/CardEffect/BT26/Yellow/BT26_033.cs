@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,40 +28,6 @@ namespace DCGO.CardEffects.BT26
                     card: card,
                     condition: null,
                     level: 5));
-            }
-            #endregion
-
-            #region Cancel security cost for digivolution only
-            // VERY HACKY PATCH: So this sucks right, Option Use Cost uses ChangeCostClass which affects ALL cost calculations for this card, including digivolution.
-            // This results in + security_count being added to digivolution costs too, which is not what I want (it should only affect the option part of the card play cost).
-            // I don't think there's a way to increase only the option part play cost, I think this is the only card that does anything like this.
-            // To somehow equalize the evo cost, we negate the security count specifically for digivolution costs using ChangeDigivolutionCostStaticEffect.
-            // This only affects digivolution, NOT option use .
-            // so the option cost correctly ends up as 2 + security_count while digivolution costs what it should (5 for red yellow 4 for TS).
-            if (timing == EffectTiming.None)
-            {
-                bool PermanentCondition(Permanent targetPermanent)
-                {
-                    return targetPermanent != null
-                        && targetPermanent.TopCard.IsLevel5;
-                }
-
-                bool CardSourceCondition(CardSource cardSource)
-                {
-                    return cardSource == card && cardSource.Owner == card.Owner;
-                }
-
-                Func<int> securityNegate = () => -(card.Owner.SecurityCards.Count);
-
-                cardEffects.Add(CardEffectFactory.ChangeDigivolutionCostStaticEffect(
-                    changeValue: securityNegate,
-                    permanentCondition: PermanentCondition,
-                    cardCondition: CardSourceCondition,
-                    rootCondition: null,
-                    isInheritedEffect: false,
-                    card: card,
-                    condition: null,
-                    setFixedCost: false));
             }
             #endregion
 
@@ -326,7 +291,7 @@ namespace DCGO.CardEffects.BT26
 
                 bool CanUseCondition(Hashtable hashtable)
                 {
-                    return card.Owner.HandCards.Contains(card);
+                    return true;
                 }
 
                 int ChangeCost(CardSource cardSource, int cost, SelectCardEffect.Root root, List<Permanent> targetPermanents)
@@ -350,7 +315,7 @@ namespace DCGO.CardEffects.BT26
 
                 bool PermanentsCondition(List<Permanent> targetPermanents)
                 {
-                    return true;
+                    return targetPermanents == null || targetPermanents.Count(targetPermanent => targetPermanent != null) == 0;
                 }
             }
             #endregion
