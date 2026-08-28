@@ -15,7 +15,7 @@ namespace DCGO.CardEffects.BT26
             {
                 bool PermanentCondition(Permanent targetPermanent)
                 {
-                    return targetPermanent.TopCard.ContainsCardName("Aegiomon");
+                    return targetPermanent.TopCard.EqualsCardName("Aegiomon");
                 }
 
                 cardEffects.Add(CardEffectFactory.AddSelfDigivolutionRequirementStaticEffect(
@@ -105,6 +105,8 @@ namespace DCGO.CardEffects.BT26
                         && permanent.Level <= 5;
                 }
                 #endregion
+
+                if (!CanDeleteSelf() && !CanReturnFromTrash()) yield break;
 
                 bool hasPaidCost = false;
 
